@@ -14,7 +14,6 @@ app.get("/", async (req, res) => {
 
   res.json({
     status: true,
-    owner: "FM ABDULLAH",
     message: "Pair Server Running"
   });
 
@@ -24,7 +23,7 @@ app.get("/code", async (req, res) => {
 
   try {
 
-    const number = req.query.number;
+    let number = req.query.number;
 
     if (!number) {
 
@@ -35,6 +34,10 @@ app.get("/code", async (req, res) => {
 
     }
 
+    // clean number
+    number = number.replace(/[^0-9]/g, "");
+
+    // auth folder
     const sessionPath =
     `./sessions/${number}`;
 
@@ -46,6 +49,7 @@ app.get("/code", async (req, res) => {
     const { version } =
     await fetchLatestBaileysVersion();
 
+    // socket
     const sock = makeWASocket({
 
       version,
@@ -75,6 +79,12 @@ app.get("/code", async (req, res) => {
       saveCreds
     );
 
+    // wait before requesting code
+    await new Promise(resolve =>
+      setTimeout(resolve, 5000)
+    );
+
+    // generate pair code
     const code =
     await sock.requestPairingCode(number);
 
